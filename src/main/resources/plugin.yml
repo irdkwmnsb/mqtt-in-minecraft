@@ -1,0 +1,20 @@
+name: "MQTTLamp"
+version: "1.5"
+main: "ru.alzhanov.mqttminecraft.MQTTPlugin"
+author: irdkwmnsb
+load: POSTWORLD
+api-version: "1.13"
+commands:
+  mqtt:
+    description: Send a mqtt message
+    usage: /mqtt [channel] [message]
+    permission: mqtt.sendmqtt
+    permission-message: You don't have enough permissions to do this.
+  mqttconfigure:
+    description: Configure MQTT broker
+    usage: |
+      /mqttconfigure [url] [password] [user]
+      User and password are optional
+    aliases: [mqttconf, mqttconfig, mqttbroker]
+    permission: mqtt.broker.configure
+    permission-message: You don't have enough permissions to do this.

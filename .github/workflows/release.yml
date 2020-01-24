@@ -2,7 +2,7 @@ name: Add binaries to a release
 
 on:
   release:
-    types: [created]
+    types: [created, published]
 
 jobs:
   build:

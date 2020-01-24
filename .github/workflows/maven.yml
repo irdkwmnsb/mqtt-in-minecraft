@@ -29,6 +29,6 @@ jobs:
         uses: skx/github-action-publish-binaries@release-1.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            args: 'MQTTInMinecraft-*'
+        with:
+          args: 'MQTTInMinecraft-*'
 

@@ -1,5 +1,11 @@
+[![Release badge](https://github.com/irdkwmnsb/mqtt-in-minecraft/workflows/Handle%20Release/badge.svg)](https://github.com/irdkwmnsb/mqtt-in-minecraft/actions)
+[![Test build badge](https://github.com/irdkwmnsb/mqtt-in-minecraft/workflows/Test%20build/badge.svg)](https://github.com/irdkwmnsb/mqtt-in-minecraft/actions)
 ## Что это такое?
 Этот плагин позволяет создавать лампы, которые будут отправлять свой цвет и уровень сигнала по протоколу MQTT  
+
+## Скачать:
+https://github.com/irdkwmnsb/mqtt-in-minecraft/releases  
+Файл jar-with-dependencies.jar
 
 ## Как этим пользоваться? 
 ### Добавляем mqtt брокер командой  
@@ -27,4 +33,3 @@
 Использует бибилиотеку com.eclipse.paho, обновляется каждый тик игры и проверят, изменилось ли мощность редстоуна на лампе. Если да, отправляет новое значение на [название лампы]/value  
 Хранит все свои данные в JSON файле в /plugins/MQTTLamp/lamps.json. Обновляет этот файл при каждом добавлении/удалении/перекраске лампы.  
 Пожалуйста не правьте этот файл самостоятельно. Если в файле будет синтаксическая ошибка плагин не сможет запуститься.  
-

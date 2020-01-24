@@ -1,12 +1,9 @@
 package ru.alzhanov.mqttminecraft;
 
-import jdk.vm.ci.meta.SpeculationLog;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class CommandMQTT implements CommandExecutor {
     MQTTPlugin plugin;

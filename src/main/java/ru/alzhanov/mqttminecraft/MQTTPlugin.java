@@ -4,12 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import java.util.UUID;
 import java.util.logging.Logger;
 
 public class MQTTPlugin extends JavaPlugin implements org.bukkit.event.Listener {
     FileConfiguration config = getConfig();
+    MqttClientPersistence clientPersistence = null;
     Logger logger = getLogger();
     protected IMqttClient client = null;
     public Database db = null;
@@ -22,7 +24,8 @@ public class MQTTPlugin extends JavaPlugin implements org.bukkit.event.Listener 
 
     public void mqttConnect() throws IllegalArgumentException, MqttException {
         String publisherId = UUID.randomUUID().toString();
-        client = new MqttClient(config.getString("MQTT.Broker.Url"), publisherId);
+        clientPersistence = new MqttDefaultFilePersistence(getDataFolder().getAbsolutePath());
+        client = new MqttClient(config.getString("MQTT.Broker.Url"), publisherId, clientPersistence);
 
         MqttConnectOptions options = new MqttConnectOptions();
         options.setAutomaticReconnect(true);
@@ -45,9 +48,13 @@ public class MQTTPlugin extends JavaPlugin implements org.bukkit.event.Listener 
 
     public void mqttDisconnect() throws MqttException {
         client.disconnect();
+        clientPersistence.close();
     }
 
     public void mqttSend(String topic, String payload) throws MqttException {
+        if(!mqttIsConnected()) {
+            mqttConnect();
+        }
         MqttMessage msg = new MqttMessage(payload.getBytes());
         msg.setQos(1);
         msg.setRetained(true);

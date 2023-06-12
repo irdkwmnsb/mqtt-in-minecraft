@@ -1,3 +1,6 @@
 .idea
 server
 target
+.gradle
+build
+config

@@ -1,58 +1,56 @@
 package ru.alzhanov.mqttminecraft;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Dye;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-import java.util.HashMap;
 import java.util.regex.Pattern;
-
-import static javax.swing.UIManager.put;
-import static ru.alzhanov.mqttminecraft.Lamp.MATERIAL_GLASS_MAP;
+//import static ru.alzhanov.mqttminecraft.Lamp.MATERIAL_GLASS_MAP;
 
 public class MyListener implements Listener {
     MQTTPlugin plugin;
-    static Material[] dyes = {};
+//    static Material[] dyes = {};
 
     public MyListener(MQTTPlugin plugin) {
         this.plugin = plugin;
     }
 
-    private static HashMap<Material, Integer> MATERIAL_DYE_MAP = new HashMap<Material, Integer>() {
-        {
-            put(Material.BLACK_DYE, 0);       // 0
-            put(Material.RED_DYE, 1);         // 1
-            put(Material.GREEN_DYE, 2);       // 2
-            put(Material.BROWN_DYE, 3);       // 3
-            put(Material.BLUE_DYE, 4);        // 4
-            put(Material.PURPLE_DYE, 5);      // 5
-            put(Material.CYAN_DYE, 6);        // 6
-            put(Material.LIGHT_GRAY_DYE, 7);  // 7
-            put(Material.GRAY_DYE, 8);        // 8
-            put(Material.PINK_DYE, 9);        // 9
-            put(Material.LIME_DYE, 10);        // 10
-            put(Material.YELLOW_DYE, 11);      // 11
-            put(Material.LIGHT_BLUE_DYE, 12);  // 12
-            put(Material.MAGENTA_DYE, 13);     // 13
-            put(Material.ORANGE_DYE, 14);      // 14
-            put(Material.WHITE_DYE, 15);      // 15
-        }
-    };
+//    private static final HashMap<Material, Integer> MATERIAL_DYE_MAP = new HashMap<Material, Integer>() {
+//        {
+//            put(Material.BLACK_DYE, 0);       // 0
+//            put(Material.RED_DYE, 1);         // 1
+//            put(Material.GREEN_DYE, 2);       // 2
+//            put(Material.BROWN_DYE, 3);       // 3
+//            put(Material.BLUE_DYE, 4);        // 4
+//            put(Material.PURPLE_DYE, 5);      // 5
+//            put(Material.CYAN_DYE, 6);        // 6
+//            put(Material.LIGHT_GRAY_DYE, 7);  // 7
+//            put(Material.GRAY_DYE, 8);        // 8
+//            put(Material.PINK_DYE, 9);        // 9
+//            put(Material.LIME_DYE, 10);        // 10
+//            put(Material.YELLOW_DYE, 11);      // 11
+//            put(Material.LIGHT_BLUE_DYE, 12);  // 12
+//            put(Material.MAGENTA_DYE, 13);     // 13
+//            put(Material.ORANGE_DYE, 14);      // 14
+//            put(Material.WHITE_DYE, 15);      // 15
+//        }
+//    };
 
+    private static boolean isRedstoneLamp(Material m) {
+        return m == Material.REDSTONE_LAMP_ON || m == Material.REDSTONE_LAMP_OFF;
+    }
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent event) {
         if (event.getMaterial() == Material.NAME_TAG &&
                 event.getAction() == Action.RIGHT_CLICK_BLOCK &&
-                event.getClickedBlock().getType() == Material.REDSTONE_LAMP) {
+                isRedstoneLamp(event.getClickedBlock().getType())) {
             if (!event.getPlayer().hasPermission("mqtt.lamp.create")) {
                 event.getPlayer().sendMessage("You don't have enough permissions to do this.");
                 return;
@@ -74,30 +72,32 @@ public class MyListener implements Listener {
             }
             Lamp newLamp = new Lamp(name,
                     event.getClickedBlock(),
-                    14);
+                    new Dye(DyeColor.WHITE));
             plugin.db.lamps.add(newLamp);
             plugin.db.save();
             try {
-                plugin.mqttSend(name + "/color", newLamp.color + "");
-                plugin.mqttSend(name + "/value", event.getClickedBlock().getBlockPower() + "");
+                plugin.mqttSend(name + "/color", String.valueOf(newLamp.color));
+                plugin.mqttSend(name + "/value", String.valueOf(event.getClickedBlock().getBlockPower()));
             } catch (MqttException e) {
                 e.printStackTrace();
             }
             event.getPlayer().sendMessage(String.format("Added lamp %s.", name));
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK &&
-                event.getClickedBlock().getType() == Material.REDSTONE_LAMP) {
-            if (MATERIAL_DYE_MAP.containsKey(event.getMaterial())) {
+                isRedstoneLamp(event.getClickedBlock().getType())) {
+            Material clickedMaterial = event.getMaterial();
+            if (clickedMaterial == Material.INK_SACK) { // Ink sack because that's how it was before 1.13
                 if (!event.getPlayer().hasPermission("mqtt.lamp.color")) {
                     event.getPlayer().sendMessage("You don't have enough permissions to do this.");
                     return;
                 }
+                Dye color = (Dye) event.getItem().getData();
                 for (Lamp lamp : plugin.db.lamps) {
                     if (lamp.location.equals(event.getClickedBlock().getLocation())) {
-                        lamp.color = MATERIAL_DYE_MAP.get(event.getMaterial());
-                        lamp.getArmorStand().setHelmet(new ItemStack(MATERIAL_GLASS_MAP[lamp.color]));
+                        lamp.color = color;
+                        lamp.getArmorStand().setHelmet(new ItemStack(Material.STAINED_GLASS, 1, DyeColor.getByDyeData(color.getData()).getWoolData()));
                         plugin.db.save();
                         try {
-                            plugin.mqttSend(lamp.name + "/color", lamp.color + "");
+                            plugin.mqttSend(lamp.name + "/color", String.valueOf(lamp.color.getColor().ordinal()));
                         } catch (MqttException e) {
                             e.printStackTrace();
                             event.getPlayer().sendMessage("Could not send message to broker. Check console for further details.");
@@ -110,7 +110,7 @@ public class MyListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getType() == Material.REDSTONE_LAMP) {
+        if (isRedstoneLamp(event.getBlock().getType())) {
             for (Lamp lamp : plugin.db.lamps) {
                 if (lamp.location.equals(event.getBlock().getLocation())) {
                     if(!event.getPlayer().hasPermission("mqtt.lamp.break")) {

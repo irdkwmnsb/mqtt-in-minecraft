@@ -13,16 +13,15 @@ public class EveryTickRunnable implements Runnable {
     @Override
     public void run() {
         for (final Lamp lamp : plugin.db.lamps) {
+//            if (lamp.lastPower == -1 || lamp.getBlock().getBlockPower() != lamp.lastPower) {
+//            int newPower = lamp.getBlock().getBlockPower()
             if (lamp.lastPower == -1 || lamp.getBlock().getBlockPower() != lamp.lastPower) {
                 lamp.lastPower = lamp.getBlock().getBlockPower();
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            plugin.mqttSend(lamp.name + "/value", lamp.lastPower + "");
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        plugin.mqttSend(lamp.name + "/value", String.valueOf(lamp.lastPower));
+                    } catch (MqttException e) {
+                        e.printStackTrace();
                     }
                 });
             }

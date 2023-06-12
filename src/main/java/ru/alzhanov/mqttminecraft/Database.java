@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class Database {
     public ArrayList<Lamp> lamps;
-    File dbFile = null;
+    File dbFile;
 
     public Database(File dataFolder) {
         dbFile = new File(dataFolder, "lamps.json");
@@ -29,11 +29,11 @@ public class Database {
         try {
             Gson gson = new Gson();
             FileReader fr = new FileReader(dbFile);
-            lamps = new ArrayList<Lamp>(Arrays.asList(gson.fromJson(fr, Lamp[].class)));
+            lamps = new ArrayList<>(Arrays.asList(gson.fromJson(fr, Lamp[].class)));
             fr.close();
             for(Lamp lamp: lamps) {
-                if(lamp.location.getBlock().getType() != Material.REDSTONE_LAMP) {
-                    lamp.location.getBlock().setType(Material.REDSTONE_LAMP);
+                if(lamp.location.getBlock().getType() != Material.REDSTONE_LAMP_OFF) {
+                    lamp.location.getBlock().setType(Material.REDSTONE_LAMP_OFF);
                 }
                 lamp.getArmorStand();
             }

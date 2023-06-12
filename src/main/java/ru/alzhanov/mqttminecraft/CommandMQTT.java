@@ -18,8 +18,12 @@ public class CommandMQTT implements CommandExecutor {
             return false;
         }
         if(!plugin.mqttIsConnected()) {
-            commandSender.sendMessage("Not connected.");
-            return true;
+            try {
+                plugin.mqttConnect();
+            } catch (MqttException e) {
+                commandSender.sendMessage("Error while connecting. Check server logs.");
+                return true;
+            }
         }
         try {
             StringBuilder sbStr = new StringBuilder();

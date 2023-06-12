@@ -3,7 +3,7 @@ version: "1.5"
 main: "ru.alzhanov.mqttminecraft.MQTTPlugin"
 author: irdkwmnsb
 load: POSTWORLD
-api-version: "1.13"
+api-version: "1.12"
 commands:
   mqtt:
     description: Send a mqtt message

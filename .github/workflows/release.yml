@@ -46,4 +46,4 @@ jobs:
           automatic_release_tag: "v${{ github.event.inputs.version }}"
           draft: ${{ github.event.inputs.draft }}
           files: |
-            artifacts/*.jar
+            build/libs/*.jar

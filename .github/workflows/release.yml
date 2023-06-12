@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Name of release
+        description: Tag name
         required: true
       publish:
         type: boolean
@@ -30,7 +30,7 @@ jobs:
 
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: shadowJar
+          arguments: shadowJar -i
 
       - uses: actions/upload-artifact@master
         with:

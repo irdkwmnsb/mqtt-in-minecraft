@@ -72,11 +72,11 @@ public class MyListener implements Listener {
             }
             Lamp newLamp = new Lamp(name,
                     event.getClickedBlock(),
-                    new Dye(DyeColor.WHITE));
+                    new Dye(DyeColor.YELLOW));
             plugin.db.lamps.add(newLamp);
             plugin.db.save();
             try {
-                plugin.mqttSend(name + "/color", String.valueOf(newLamp.color));
+                plugin.mqttSend(name + "/color", String.valueOf(newLamp.color.getColor().ordinal()));
                 plugin.mqttSend(name + "/value", String.valueOf(event.getClickedBlock().getBlockPower()));
             } catch (MqttException e) {
                 e.printStackTrace();
